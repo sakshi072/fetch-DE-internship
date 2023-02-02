@@ -4,6 +4,8 @@ from datetime import date
 import psycopg2
 from dotenv import load_dotenv
 import os
+from anonymizeip import anonymize_ip
+import random
 
 # fetching message from SQS localstack using boto3 client for SQS with aws connection credentials. 
 def read_SQS(queue_url):
@@ -36,6 +38,13 @@ def get_database_fields(body):
     locale = body['locale']
     app_version = ''.join(body['app_version'].split('.'))
     create_date = date.today()
+    
+    # masking ip using anonymize_ip
+    masked_ip = anonymize_ip(masked_ip)
+    # masking device_id using custom function by adding random number towards the end
+    masked_device_id = masked_device_id.split('-')
+    masked_device_id = masked_device_id[:-1] + [str(int(masked_device_id[-1]) + (random.randint(1,999)))]
+    masked_device_id = '-'.join(masked_device_id)
 
     return [user_id, device_type, masked_ip, masked_device_id, locale, app_version, create_date]
 
@@ -53,7 +62,7 @@ def postgres_Insert(user_id, device_type, masked_ip, masked_device_id, locale, a
         # Cursor allows the python code to execute postgres commands in a database session
         cursor = connection.cursor()
         # query to be executed in the postgres database for table user_logins
-        insert_Query = "INSERT into user_logins(user_id, device_type, masked_ip, masked_device_id, locale, app_version, create_date) VALUES ('{}', '{}', MD5('{}'::text), crypt('{}', gen_salt('bf')), '{}', {}, '{}')".format(user_id, device_type, masked_ip, masked_device_id, locale, app_version, create_date)
+        insert_Query = "INSERT into user_logins(user_id, device_type, masked_ip, masked_device_id, locale, app_version, create_date) VALUES ('{}', '{}', '{}', '{}', '{}', {}, '{}')".format(user_id, device_type, masked_ip, masked_device_id, locale, app_version, create_date)
         # Cursor executing the above query 
         cursor.execute(insert_Query)
 
@@ -67,7 +76,6 @@ def postgres_Insert(user_id, device_type, masked_ip, masked_device_id, locale, a
     except (Exception, psycopg2.Error) as error:
         print("Error while inserting data into the postgresSQL", error)
 
-
 # Main function that runs on triggering the python program
 if __name__== "__main__":
 
@@ -79,7 +87,3 @@ if __name__== "__main__":
     user_id, device_type, masked_ip, masked_device_id, locale, app_version, create_date = get_database_fields(SQS_message)
     # Instering into the postgres table
     postgres_Insert(user_id, device_type, masked_ip, masked_device_id, locale, app_version, create_date)
-
-
-
-    
