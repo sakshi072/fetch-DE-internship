@@ -22,9 +22,8 @@ Masking of the PII data can be done in multiple ways to also identify duplicate 
 * Tokenization
 * Anonymization
 
-I have used Anonymization and Hash function to mask the PII data ip and device_id. 
-For the ip I have used anonymizeip that anonymizing IP addresses. Both IPv4 and IPv6 addresses are supported. 
-For the device_id I have used a custom hashing function where I am replacing the last 4 digits of the id with '9999'. 
+I have used Hash function to mask the PII data ip and device_id. 
+For the ip and device_id I have used a custom hashing function where I am replacing the last index of each delimeter separated string in ip and device_id with either 8 or 9 conditionally. This is will detect in case of duplicates.  
 This generates masked PII data which is a one way masking and cannot be reveresed once performed. 
 
 #### - What will be your strategy for connecting and writing to Postgres
@@ -76,18 +75,18 @@ on running the python script a statement will be printed on successful run - "In
 ## Sample Output
 ```
 postgres=# select * from user_logins;
-               user_id                | device_type |            masked_ip             |                       masked_device_id                       | locale | app_version | create_date 
---------------------------------------+-------------+----------------------------------+--------------------------------------------------------------+--------+-------------+-------------
- 424cdd21-063a-43a7-b91b-7ca1a833afae | android     | 199.172.111.0                    | 593-47-9999                                                  | RU     |         230 | 2023-02-02
- 424cdd21-063a-43a7-b91b-7ca1a833afae | android     | 199.172.111.0                    | 593-47-9999                                                  | RU     |         230 | 2023-02-02
- c0173198-76a8-4e67-bfc2-74eaa3bbff57 | ios         | 241.6.88.0                       | 104-25-9999                                                  | PH     |          26 | 2023-02-02
- 424cdd21-063a-43a7-b91b-7ca1a833afae | android     | 199.172.111.0                    | 593-47-9999                                                  | RU     |         230 | 2023-02-02
- c0173198-76a8-4e67-bfc2-74eaa3bbff57 | ios         | 241.6.88.0                       | 104-25-9999                                                  | PH     |          26 | 2023-02-02
- 66e0635b-ce36-4ec7-aa9e-8a8fca9b83d4 | ios         | 130.111.167.0                    | 127-42-9999                                                  | None   |         221 | 2023-02-02
- 181452ad-20c3-4e93-86ad-1934c9248903 | android     | 118.79.6.0                       | 190-44-9999                                                  | ID     |          96 | 2023-02-02
- 60b9441c-e39d-406f-bba0-c7ff0e0ee07f | android     | 223.31.97.0                      | 149-99-9999                                                  | FR     |          46 | 2023-02-02
- 5082b1ae-6523-4e3b-a1d8-9750b4407ee8 | android     | 235.167.63.0                     | 346-96-9999                                                  | None   |          37 | 2023-02-02
- 5bc74293-3ca1-4f34-bb89-523887d0cc2f | ios         | 240.162.230.0                    | 729-06-9999                                                  | PT     |         228 | 2023-02-02
+               user_id                | device_type |    masked_ip    | masked_device_id | locale | app_version | create_date 
+--------------------------------------+-------------+-----------------+------------------+--------+-------------+-------------
+ 424cdd21-063a-43a7-b91b-7ca1a833afae | android     | 198.179.119.139 | 599-49-5929      | RU     |         230 | 2023-02-02
+ c0173198-76a8-4e67-bfc2-74eaa3bbff57 | ios         | 249.9.89.159    | 109-29-0079      | PH     |          26 | 2023-02-02
+ 66e0635b-ce36-4ec7-aa9e-8a8fca9b83d4 | ios         | 139.119.169.59  | 129-49-0869      | None   |         221 | 2023-02-02
+ 424cdd21-063a-43a7-b91b-7ca1a833afae | android     | 198.179.119.139 | 599-49-5929      | RU     |         230 | 2023-02-02
+ 181452ad-20c3-4e93-86ad-1934c9248903 | android     | 119.78.9.249    | 199-49-3098      | ID     |          96 | 2023-02-02
+ 60b9441c-e39d-406f-bba0-c7ff0e0ee07f | android     | 229.39.99.49    | 148-98-5189      | FR     |          46 | 2023-02-02
+ c0173198-76a8-4e67-bfc2-74eaa3bbff57 | ios         | 249.9.89.159    | 109-29-0079      | PH     |          26 | 2023-02-02
+ 5082b1ae-6523-4e3b-a1d8-9750b4407ee8 | android     | 239.169.69.9    | 349-99-4169      | None   |          37 | 2023-02-02
+ 424cdd21-063a-43a7-b91b-7ca1a833afae | android     | 198.179.119.139 | 599-49-5929      | RU     |         230 | 2023-02-02
+ c0173198-76a8-4e67-bfc2-74eaa3bbff57 | ios         | 249.9.89.159    | 109-29-0079      | PH     |          26 | 2023-02-02
 (10 rows)
 ```
 
