@@ -27,7 +27,7 @@ For the ip I have used anonymizeip that anonymizing IP addresses. Both IPv4 and 
 For the device_id I have used a custom hashing function where I am extarcting last 4 digits of the id and adding random integers to it. 
 This is generates masked PII data ip which is a one way making and cannot be reveresed once performed. 
 
-#### -W hat will be your strategy for connecting and writing to Postgres
+#### -What will be your strategy for connecting and writing to Postgres
 For connecting to the Postgres, I have used psycopg2 package in Python. It was designed for heavily multi-threaded applications that create and destroy lots of cursors and make a large number of concurrent “INSERT”s or “UPDATE”s. I have used a credentials to first make a connection with the database server. With this connection string, using a cursor method, I have inserted values extarcted from the SQS queue into the Postgres and committed the changes to reflect them in the database. Once the data is inserted I have closed the connection. 
 
 #### - Running the application 
