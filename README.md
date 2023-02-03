@@ -63,13 +63,13 @@ Homebrew Install for mac- https://brew.sh/
 docker compose up
 
 * terminal two - 
+pip3 install -r ./requirements.txt
+python3 program.py  
+
+* terminal three - 
 brew install postgresql@13
 psql -d postgres -U postgres -p 5432 -h localhost -W
 select * from user_logins;
-
-* terminal three - 
-pip3 install -r ./requirements.txt
-python3 program.py  
 ```
 on running the python script a statement will be printed on successful run - "Inserted". Check the postgres table for the inserted tuple.
 
