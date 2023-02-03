@@ -24,10 +24,10 @@ Masking of the PII data can be done in multiple ways to also identify duplicate 
 
 I have used Anonymization and Hash function to mask the PII data ip and device_id. 
 For the ip I have used anonymizeip that anonymizing IP addresses. Both IPv4 and IPv6 addresses are supported. 
-For the device_id I have used a custom hashing function where I am extarcting last 4 digits of the id and adding random integers to it. 
-This is generates masked PII data ip which is a one way making and cannot be reveresed once performed. 
+For the device_id I have used a custom hashing function where I am replacing the last 4 digits of the id with '9999'. 
+This generates masked PII data which is a one way masking and cannot be reveresed once performed. 
 
-#### -What will be your strategy for connecting and writing to Postgres
+#### - What will be your strategy for connecting and writing to Postgres
 For connecting to the Postgres, I have used psycopg2 package in Python. It was designed for heavily multi-threaded applications that create and destroy lots of cursors and make a large number of concurrent “INSERT”s or “UPDATE”s. I have used a credentials to first make a connection with the database server. With this connection string, using a cursor method, I have inserted values extarcted from the SQS queue into the Postgres and committed the changes to reflect them in the database. Once the data is inserted I have closed the connection. 
 
 #### - Running the application 
@@ -78,16 +78,16 @@ on running the python script a statement will be printed on successful run - "In
 postgres=# select * from user_logins;
                user_id                | device_type |            masked_ip             |                       masked_device_id                       | locale | app_version | create_date 
 --------------------------------------+-------------+----------------------------------+--------------------------------------------------------------+--------+-------------+-------------
- 424cdd21-063a-43a7-b91b-7ca1a833afae | android     | 199.172.111.0                    | 593-47-5928                                                  | RU     |         230 | 2023-02-02
- 424cdd21-063a-43a7-b91b-7ca1a833afae | android     | 199.172.111.0                    | 593-47-5928                                                  | RU     |         230 | 2023-02-02
- c0173198-76a8-4e67-bfc2-74eaa3bbff57 | ios         | 241.6.88.0                       | 104-25-0070                                                  | PH     |          26 | 2023-02-02
- 424cdd21-063a-43a7-b91b-7ca1a833afae | android     | 199.172.111.135                  | 593-47-5928                                                  | RU     |         230 | 2023-02-02
- c0173198-76a8-4e67-bfc2-74eaa3bbff57 | ios         | 241.6.88.0                       | 104-25-431                                                   | PH     |          26 | 2023-02-02
- 424cdd21-063a-43a7-b91b-7ca1a833afae | android     | 199.172.111.0                    | 593-47-6537                                                  | RU     |         230 | 2023-02-02
- c0173198-76a8-4e67-bfc2-74eaa3bbff57 | ios         | 241.6.88.0                       | 104-25-198                                                   | PH     |          26 | 2023-02-02
- 424cdd21-063a-43a7-b91b-7ca1a833afae | android     | 199.172.111.0                    | 593-47-6157                                                  | RU     |         230 | 2023-02-02
- c0173198-76a8-4e67-bfc2-74eaa3bbff57 | ios         | 241.6.88.0                       | 104-25-924                                                   | PH     |          26 | 2023-02-02
- 66e0635b-ce36-4ec7-aa9e-8a8fca9b83d4 | ios         | 130.111.167.0                    | 127-42-1250                                                  | None   |         221 | 2023-02-02
+ 424cdd21-063a-43a7-b91b-7ca1a833afae | android     | 199.172.111.0                    | 593-47-9999                                                  | RU     |         230 | 2023-02-02
+ 424cdd21-063a-43a7-b91b-7ca1a833afae | android     | 199.172.111.0                    | 593-47-9999                                                  | RU     |         230 | 2023-02-02
+ c0173198-76a8-4e67-bfc2-74eaa3bbff57 | ios         | 241.6.88.0                       | 104-25-9999                                                  | PH     |          26 | 2023-02-02
+ 424cdd21-063a-43a7-b91b-7ca1a833afae | android     | 199.172.111.0                    | 593-47-9999                                                  | RU     |         230 | 2023-02-02
+ c0173198-76a8-4e67-bfc2-74eaa3bbff57 | ios         | 241.6.88.0                       | 104-25-9999                                                  | PH     |          26 | 2023-02-02
+ 66e0635b-ce36-4ec7-aa9e-8a8fca9b83d4 | ios         | 130.111.167.0                    | 127-42-9999                                                  | None   |         221 | 2023-02-02
+ 181452ad-20c3-4e93-86ad-1934c9248903 | android     | 118.79.6.0                       | 190-44-9999                                                  | ID     |          96 | 2023-02-02
+ 60b9441c-e39d-406f-bba0-c7ff0e0ee07f | android     | 223.31.97.0                      | 149-99-9999                                                  | FR     |          46 | 2023-02-02
+ 5082b1ae-6523-4e3b-a1d8-9750b4407ee8 | android     | 235.167.63.0                     | 346-96-9999                                                  | None   |          37 | 2023-02-02
+ 5bc74293-3ca1-4f34-bb89-523887d0cc2f | ios         | 240.162.230.0                    | 729-06-9999                                                  | PT     |         228 | 2023-02-02
 (10 rows)
 ```
 
@@ -124,3 +124,4 @@ Using the hash function or Anonymization, the action cannot be reveresed to get 
 3. Growing dataset assumption - the number of commits to SQS increase which then increases the call on a lambda function 
 4. Assuming the database is also in AWS, therefore suggesting AWS RDS.
 5. The original unmasked values can be stored on the database so that an irreversible masking technique can be applied.
+6. As app version field in the DDL of the user_logins table is an integer, I have removed the '.' from app version as retrieved from the SQS message body and combined all the digits as one integer value.
