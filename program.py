@@ -4,8 +4,6 @@ from datetime import date
 import psycopg2
 from dotenv import load_dotenv
 import os
-from anonymizeip import anonymize_ip
-import random
 
 # fetching message from SQS localstack using boto3 client for SQS with aws connection credentials. 
 def read_SQS(queue_url):
