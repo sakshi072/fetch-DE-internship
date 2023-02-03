@@ -39,11 +39,23 @@ def get_database_fields(body):
     app_version = ''.join(body['app_version'].split('.'))
     create_date = date.today()
     
-    # masking ip using anonymize_ip
-    masked_ip = anonymize_ip(masked_ip)
-    # masking device_id using custom function by adding replacing last four digits with '9999'
+     # masking ip and device_id using custom function by adding integer to all the units places of the delimeter separated individual strings in ips and devide ids. 
+    masked_ip = masked_ip.split('.')
+    for i in range(len(masked_ip)):
+        # adding either 8 or 9 to the -1th index of each delimeter separated part of the ip
+        if masked_ip[i][-1] == '9':
+            masked_ip[i] = masked_ip[i][:-1] + '8'
+        else:
+            masked_ip[i] = masked_ip[i][:-1] + '9'
+    masked_ip = '.'.join(masked_ip)
+   
     masked_device_id = masked_device_id.split('-')
-    masked_device_id = masked_device_id[:-1] + [str(9999)]
+    for i in range(len(masked_device_id)):
+        # adding either 8 or 9 to the -1th index of each delimeter separated part of the device-id
+        if masked_device_id[i][-1] == '9':
+            masked_device_id[i] = masked_device_id[i][:-1] + '8'
+        else:
+            masked_device_id[i] = masked_device_id[i][:-1] + '9'
     masked_device_id = '-'.join(masked_device_id)
 
     return [user_id, device_type, masked_ip, masked_device_id, locale, app_version, create_date]
