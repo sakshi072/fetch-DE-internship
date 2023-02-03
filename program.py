@@ -41,9 +41,9 @@ def get_database_fields(body):
     
     # masking ip using anonymize_ip
     masked_ip = anonymize_ip(masked_ip)
-    # masking device_id using custom function by adding random number towards the end
+    # masking device_id using custom function by adding replacing last four digits with '9999'
     masked_device_id = masked_device_id.split('-')
-    masked_device_id = masked_device_id[:-1] + [str(int(masked_device_id[-1]) + (random.randint(1,999)))]
+    masked_device_id = masked_device_id[:-1] + [str(9999)]
     masked_device_id = '-'.join(masked_device_id)
 
     return [user_id, device_type, masked_ip, masked_device_id, locale, app_version, create_date]
